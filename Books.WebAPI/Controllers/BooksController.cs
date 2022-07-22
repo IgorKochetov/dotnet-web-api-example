@@ -65,7 +65,16 @@ namespace Books.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            throw new NotImplementedException();
+            var bookToDelete = await _context.Books.FindAsync(id);
+            if (bookToDelete == null)
+            {
+                return NotFound($"Book with id {id} is not found");
+            }
+
+            _context.Books.Remove(bookToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }

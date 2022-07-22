@@ -152,5 +152,44 @@ namespace Books.Tests
             var editedBook = booksDbContext.Books.Find(testId);
             Assert.That(editedBook.Title, Is.EqualTo(newTitle));
         }
+
+        [Test]
+        public async Task Controller_DeleteBook_ReturnsNotFound_IfIdNotInStore()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_DeleteBook_ReturnsNotFound_IfIdNotInStore))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 42;
+
+            var result = await sut.Delete(testId);
+
+            Assert.That(result is NotFoundObjectResult);
+            Assert.That(((NotFoundObjectResult)result).Value, Is.EqualTo("Book with id 42 is not found"));
+        }
+
+        [Test]
+        public async Task Controller_DeleteBook_RemovesFromDatastore()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_DeleteBook_RemovesFromDatastore))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+            await SeedData(booksDbContext);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 1;
+            var bookToDelete = booksDbContext.Books.Find(testId);
+            Assert.That(bookToDelete, Is.Not.Null);
+
+            await sut.Delete(testId);
+
+            var deletedBook = booksDbContext.Books.Find(testId);
+            Assert.That(deletedBook, Is.Null);
+        }
     }
 }
