@@ -36,7 +36,8 @@ namespace Books.WebAPI.Controllers
         [HttpPost]
         public async Task Post([FromBody] Book value)
         {
-            throw new NotImplementedException();
+            _context.Books.Add(value);
+            await _context.SaveChangesAsync();
         }
 
         // PUT api/<BooksController>/5

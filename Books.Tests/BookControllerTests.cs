@@ -90,5 +90,26 @@ namespace Books.Tests
 
             Assert.That(result, Is.Null);
         }
+
+        [Test]
+        public async Task Controller_PostBook_CreatesABookInTheDatabase()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_PostBook_CreatesABookInTheDatabase))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+
+            Assert.That(booksDbContext.Books.Count(), Is.Zero);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testTitle = "My favourite book";
+            var bookToAdd = new Book { Title = testTitle };
+
+            await sut.Post(bookToAdd);
+
+            var addedBook = booksDbContext.Books.Single();
+            Assert.That(addedBook.Title, Is.EqualTo(testTitle));
+        }
     }
 }
