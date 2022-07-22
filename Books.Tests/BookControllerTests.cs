@@ -53,5 +53,42 @@ namespace Books.Tests
             Assert.That(result[1].Title, Is.EqualTo("My Second Book"));
             Assert.That(result[1].NumberOfCopies, Is.EqualTo(42));
         }
+
+        [Test]
+        public async Task Controller_GetBook_ReturnsBookById()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_GetBook_ReturnsBookById))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+            await SeedData(booksDbContext);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 1;
+
+            var result = await sut.Get(testId);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Title, Is.EqualTo("My First Book"));
+        }
+
+        [Test]
+        public async Task Controller_GetBook_ReturnsNull_IfNotFound()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_GetBook_ReturnsNull_IfNotFound))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+            await SeedData(booksDbContext);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 42;
+
+            var result = await sut.Get(testId);
+
+            Assert.That(result, Is.Null);
+        }
     }
 }

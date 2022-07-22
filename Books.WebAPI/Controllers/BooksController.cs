@@ -29,7 +29,7 @@ namespace Books.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<Book> Get(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Books.FindAsync(id);
         }
 
         // POST api/<BooksController>
