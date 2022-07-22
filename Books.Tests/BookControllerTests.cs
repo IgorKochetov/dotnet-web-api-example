@@ -5,6 +5,7 @@ using NUnit.Framework;
 using System.Linq;
 using Books.WebAPI.Controllers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Tests
 {
@@ -110,6 +111,46 @@ namespace Books.Tests
 
             var addedBook = booksDbContext.Books.Single();
             Assert.That(addedBook.Title, Is.EqualTo(testTitle));
+        }
+
+        [Test]
+        public async Task Controller_PutBook_ReturnsNotFound_IfIdNotInStore()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_PutBook_ReturnsNotFound_IfIdNotInStore))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 42;
+            var newTitle = "Title was edited";
+
+            var result = await sut.Put(testId, new Book { Title = newTitle });
+
+            Assert.That(result is NotFoundObjectResult);
+            Assert.That(((NotFoundObjectResult)result).Value, Is.EqualTo("Book with id 42 is not found"));
+        }
+
+
+        [Test]
+        public async Task Controller_PutBook_CanUpdateTitle()
+        {
+            var options = new DbContextOptionsBuilder<BooksContext>()
+                .UseInMemoryDatabase(nameof(Controller_PutBook_CanUpdateTitle))
+                .Options;
+            using var booksDbContext = new BooksContext(options);
+            await SeedData(booksDbContext);
+
+            var sut = new BooksController(booksDbContext);
+
+            var testId = 1;
+            var newTitle = "Title was edited";
+
+            await sut.Put(testId, new Book { Title = newTitle });
+
+            var editedBook = booksDbContext.Books.Find(testId);
+            Assert.That(editedBook.Title, Is.EqualTo(newTitle));
         }
     }
 }

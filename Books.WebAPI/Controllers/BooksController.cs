@@ -44,7 +44,21 @@ namespace Books.WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] Book value)
         {
-            throw new NotImplementedException();
+            var bookToEdit = await _context.Books.FindAsync(id);
+            if (bookToEdit == null)
+            {
+                return NotFound($"Book with id {id} is not found");
+            }
+
+            // Normally we would implement domain logic to assign/copy all fields
+            // or replace object fully
+            // This is simplified for the sake of brevity
+            bookToEdit.Title = value.Title;
+            bookToEdit.NumberOfCopies = value.NumberOfCopies;
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         // DELETE api/<BooksController>/5
