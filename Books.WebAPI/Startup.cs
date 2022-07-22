@@ -22,6 +22,13 @@ namespace Books.WebAPI
         {
             services.AddControllers();
             services.AddDbContext<BooksContext>(options => options.UseSqlite("DataSource=BooksDataStore.db"));
+
+            var serviceProvider = services.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetService<BooksContext>();
+                dbContext.Database.Migrate();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
