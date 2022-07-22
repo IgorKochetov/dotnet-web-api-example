@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Books.Data;
 using Books.Domain;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Books.WebAPI.Controllers
 {
@@ -11,15 +12,17 @@ namespace Books.WebAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        public BooksController()
+        private readonly BooksContext _context;
+        public BooksController(BooksContext context)
         {
+            _context = context;
         }
 
         // GET: api/<BooksController>
         [HttpGet]
-        public async Task<IList<Book>> Get()
+        public async Task<List<Book>> Get()
         {
-            throw new NotImplementedException();
+            return await _context.Books.ToListAsync();
         }
 
         // GET api/<BooksController>/5
